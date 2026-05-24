@@ -20,6 +20,8 @@ Use these files as the source of truth when maintaining the importer:
   `Background`, `PropAsset`, `SoundAsset`, `Expression`, and project data shapes.
 - `D:/Study/AIGC/AIWeb/as.aitalk.cloud/src/stores/projectStore.ts`
   `.anime` save/load field placement.
+- `D:/Study/AIGC/AIWeb/as.aitalk.cloud/src/constants/canvas.ts`
+  Canvas and camera constants. Current physical canvas is `6720x2800`, center is `3360,1400`, and camera base viewport is `1456x819`.
 
 Current field placement in `.anime`:
 

@@ -7,10 +7,12 @@ import process from 'node:process'
 const IMAGE_EXTS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif'])
 const AUDIO_EXTS = new Set(['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac'])
 const MIN_CONFIG_VERSION = '2.0.0'
-const CANVAS_CENTER_X = 960
-const CANVAS_CENTER_Y = 540
-const CAMERA_BASE_WIDTH = 1920
-const CAMERA_BASE_HEIGHT = 1080
+const CANVAS_WIDTH = 6720
+const CANVAS_HEIGHT = 2800
+const CANVAS_CENTER_X = CANVAS_WIDTH / 2
+const CANVAS_CENTER_Y = CANVAS_HEIGHT / 2
+const CAMERA_BASE_WIDTH = 1456
+const CAMERA_BASE_HEIGHT = 819
 
 function usage() {
   return `Usage:

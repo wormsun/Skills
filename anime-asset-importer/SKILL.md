@@ -40,7 +40,7 @@ The script backs up the `.anime` file by default, writes only valid JSON, and pr
 - `sound` / `sfx` / `bgm`: imports audio files into `assets.sounds[]`.
 - `expression`: imports image folders/files into top-level `expressions{}`; the first image is the default frame, remaining images become speaking frames.
 
-Scene templates and characters use the same conversion rules as AIWeb's `src/utils/configImporter.ts`: `config.json` is parsed, frame paths are resolved relative to the config folder, symbol materials are self-contained on `symbol` scene objects, and composite objects use `entity` mode by default.
+Scene templates and characters use the same conversion rules as AIWeb's `src/utils/configImporter.ts`: `config.json` is parsed, frame paths are resolved relative to the config folder, symbol materials are self-contained on `symbol` scene objects, and composite objects use `entity` mode by default. AIWeb's current physical canvas is `6720x2800`, so imported config-based assets should be centered at `3360,1400`; the camera base viewport is `1456x819`.
 
 ## Important Options
 
