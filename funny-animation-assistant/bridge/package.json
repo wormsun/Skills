@@ -1,0 +1,9 @@
+{
+  "name": "funny-animation-assistant-skill-bridge",
+  "version": "0.2.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

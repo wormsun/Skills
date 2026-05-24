@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "title": "",
+  "duration": "",
+  "adaptation_range": "",
+  "ending_hook": "",
+  "platform_rhythm": {
+    "target_platforms": ["douyin", "kuaishou", "bilibili", "wechat_channels"],
+    "aspect_ratio_assumption": "universal_animation_not_vertical_by_default",
+    "opening_hook": "",
+    "ending_hook": ""
+  },
+  "characters": [
+    {
+      "name": "",
+      "role": "",
+      "voice": "",
+      "episode_function": ""
+    }
+  ],
+  "scenes": [
+    {
+      "name": "",
+      "purpose": "",
+      "props": [],
+      "mood": ""
+    }
+  ],
+  "beats": [
+    {
+      "time_range": "",
+      "previous_link": "",
+      "scene": "",
+      "story_text": "",
+      "narration": "",
+      "dialogue": [
+        {
+          "speaker": "",
+          "line": ""
+        }
+      ],
+      "action": "",
+      "production_lines": [
+        {
+          "speaker_type": "narration",
+          "speaker": "旁白",
+          "text": "",
+          "sound": "",
+          "note": ""
+        }
+      ],
+      "sound": "",
+      "note": "",
+      "next_link": ""
+    }
+  ],
+  "production_notes": {
+    "reusable_characters": [],
+    "reusable_scenes": [],
+    "key_expressions": [],
+    "transition_notes": []
+  }
+}

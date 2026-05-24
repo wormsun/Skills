@@ -1,0 +1,3 @@
+display_name: Script To Anime
+short_description: Build .anime episodes from scripts with location-based scene structure.
+default_prompt: Convert this 沙雕动画小助手 script into .anime episodes using existing backgrounds or scene templates. Segment scenes mainly by place changes, merge over-split same-location beats, preserve existing actors, configure missing narrator voice from the supported catalog, avoid duplicate actor voice IDs, keep 100% actor size, generate only camera_follow and set_anim actions by default, keep ambient light intensity at 1.0, then validate the result.

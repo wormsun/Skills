@@ -1,0 +1,4 @@
+interface:
+  display_name: "Anime Asset Importer"
+  short_description: "Import exported AIWeb assets into .anime projects."
+  default_prompt: "Import exported asset folders into an .anime project and validate the result."

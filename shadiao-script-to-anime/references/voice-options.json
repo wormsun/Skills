@@ -1,0 +1,887 @@
+{
+  "schema_version": "1.0",
+  "source": "as.aitalk.cloud/src/constants/voiceOptions.ts",
+  "updated_by": "shadiao-script-to-anime skill",
+  "defaults": {
+    "narrator": {
+      "voiceId": "101026",
+      "speed": 0,
+      "note": "智希，前端 FALLBACK_VOICE_ID / female default"
+    },
+    "female": {
+      "voiceId": "101026",
+      "speed": 0
+    },
+    "male": {
+      "voiceId": "101030",
+      "speed": 0
+    },
+    "other": {
+      "voiceId": "101026",
+      "speed": 0
+    }
+  },
+  "voices": [
+    {
+      "id": 502001,
+      "name": "智小柔",
+      "gender": "female",
+      "description": "温柔亲和",
+      "engine": "tencent"
+    },
+    {
+      "id": 502003,
+      "name": "智小敏",
+      "gender": "female",
+      "description": "活力女声",
+      "engine": "tencent"
+    },
+    {
+      "id": 502004,
+      "name": "智小满",
+      "gender": "female",
+      "description": "客服女声",
+      "engine": "tencent"
+    },
+    {
+      "id": 502005,
+      "name": "智小解",
+      "gender": "male",
+      "description": "解说男声",
+      "engine": "tencent"
+    },
+    {
+      "id": 502006,
+      "name": "智小悟",
+      "gender": "male",
+      "description": "阳光男声",
+      "engine": "tencent"
+    },
+    {
+      "id": 502007,
+      "name": "智小虎",
+      "gender": "male",
+      "description": "演绎童声",
+      "engine": "tencent"
+    },
+    {
+      "id": 602003,
+      "name": "爱小悠",
+      "gender": "female",
+      "description": "情感丰富",
+      "engine": "tencent"
+    },
+    {
+      "id": 602004,
+      "name": "暖心阿灿",
+      "gender": "male",
+      "description": "沉稳大气",
+      "engine": "tencent"
+    },
+    {
+      "id": 602005,
+      "name": "专业梓欣",
+      "gender": "female",
+      "description": "活力亲和",
+      "engine": "tencent"
+    },
+    {
+      "id": 603000,
+      "name": "懂事少年",
+      "gender": "male",
+      "description": "懂事少年",
+      "engine": "tencent"
+    },
+    {
+      "id": 603001,
+      "name": "潇湘妹妹",
+      "gender": "female",
+      "description": "趣味女声",
+      "engine": "tencent"
+    },
+    {
+      "id": 603002,
+      "name": "软萌心心",
+      "gender": "male",
+      "description": "趣味童声",
+      "engine": "tencent"
+    },
+    {
+      "id": 603003,
+      "name": "随和老李",
+      "gender": "male",
+      "description": "随和沉稳",
+      "engine": "tencent"
+    },
+    {
+      "id": 603004,
+      "name": "温柔小柠",
+      "gender": "female",
+      "description": "温柔亲和",
+      "engine": "tencent"
+    },
+    {
+      "id": 603005,
+      "name": "知心大林",
+      "gender": "male",
+      "description": "成熟磁性",
+      "engine": "tencent"
+    },
+    {
+      "id": 603006,
+      "name": "沉稳青叔",
+      "gender": "male",
+      "description": "沉稳磁性",
+      "engine": "tencent"
+    },
+    {
+      "id": 603007,
+      "name": "邻家女孩",
+      "gender": "female",
+      "description": "亲切自然",
+      "engine": "tencent"
+    },
+    {
+      "id": 501000,
+      "name": "智斌",
+      "gender": "male",
+      "description": "磁性男声",
+      "engine": "tencent"
+    },
+    {
+      "id": 501001,
+      "name": "智兰",
+      "gender": "female",
+      "description": "轻快女声",
+      "engine": "tencent"
+    },
+    {
+      "id": 501002,
+      "name": "智菊",
+      "gender": "female",
+      "description": "端庄大方",
+      "engine": "tencent"
+    },
+    {
+      "id": 501003,
+      "name": "智宇",
+      "gender": "male",
+      "description": "成熟大叔",
+      "engine": "tencent"
+    },
+    {
+      "id": 501004,
+      "name": "月华",
+      "gender": "female",
+      "description": "气质聪慧",
+      "engine": "tencent"
+    },
+    {
+      "id": 501005,
+      "name": "飞镜",
+      "gender": "male",
+      "description": "温和男声",
+      "engine": "tencent"
+    },
+    {
+      "id": 501006,
+      "name": "千嶂",
+      "gender": "male",
+      "description": "沉稳大气",
+      "engine": "tencent"
+    },
+    {
+      "id": 501007,
+      "name": "浅草",
+      "gender": "male",
+      "description": "青春男声",
+      "engine": "tencent"
+    },
+    {
+      "id": 501008,
+      "name": "WeJames",
+      "gender": "male",
+      "description": "外语男声",
+      "engine": "tencent"
+    },
+    {
+      "id": 501009,
+      "name": "WeWinny",
+      "gender": "female",
+      "description": "外语女声",
+      "engine": "tencent"
+    },
+    {
+      "id": 601008,
+      "name": "爱小豪",
+      "gender": "male",
+      "description": "霸道高冷",
+      "engine": "tencent"
+    },
+    {
+      "id": 601009,
+      "name": "爱小芊",
+      "gender": "female",
+      "description": "清纯灵巧",
+      "engine": "tencent"
+    },
+    {
+      "id": 601010,
+      "name": "爱小娇",
+      "gender": "female",
+      "description": "娇媚女声",
+      "engine": "tencent"
+    },
+    {
+      "id": 601011,
+      "name": "爱小川",
+      "gender": "male",
+      "description": "活力少年",
+      "engine": "tencent"
+    },
+    {
+      "id": 601012,
+      "name": "爱小璟",
+      "gender": "female",
+      "description": "可爱萝莉",
+      "engine": "tencent"
+    },
+    {
+      "id": 601013,
+      "name": "爱小伊",
+      "gender": "female",
+      "description": "知性姐姐",
+      "engine": "tencent"
+    },
+    {
+      "id": 601014,
+      "name": "爱小简",
+      "gender": "male",
+      "description": "清爽学生",
+      "engine": "tencent"
+    },
+    {
+      "id": 101001,
+      "name": "智瑜",
+      "gender": "female",
+      "description": "优雅知性姐姐",
+      "engine": "tencent"
+    },
+    {
+      "id": 101004,
+      "name": "智云",
+      "gender": "male",
+      "description": "阅读男声",
+      "engine": "tencent"
+    },
+    {
+      "id": 101011,
+      "name": "智燕",
+      "gender": "female",
+      "description": "有气场的女播音员",
+      "engine": "tencent"
+    },
+    {
+      "id": 101013,
+      "name": "智辉",
+      "gender": "male",
+      "description": "新闻播音员",
+      "engine": "tencent"
+    },
+    {
+      "id": 101015,
+      "name": "智萌",
+      "gender": "male",
+      "description": "纯真小朋友",
+      "engine": "tencent"
+    },
+    {
+      "id": 101016,
+      "name": "智甜",
+      "gender": "female",
+      "description": "可爱萌宝宝",
+      "engine": "tencent"
+    },
+    {
+      "id": 101019,
+      "name": "智彤",
+      "gender": "female",
+      "description": "时尚粤语姐姐",
+      "engine": "tencent"
+    },
+    {
+      "id": 101021,
+      "name": "智瑞",
+      "gender": "male",
+      "description": "新闻播音员",
+      "engine": "tencent"
+    },
+    {
+      "id": 101026,
+      "name": "智希",
+      "gender": "female",
+      "description": "甜美小助手",
+      "engine": "tencent"
+    },
+    {
+      "id": 101027,
+      "name": "智梅",
+      "gender": "female",
+      "description": "柔美大方",
+      "engine": "tencent"
+    },
+    {
+      "id": 101030,
+      "name": "智柯",
+      "gender": "male",
+      "description": "自然轻快",
+      "engine": "tencent"
+    },
+    {
+      "id": 101054,
+      "name": "智友",
+      "gender": "male",
+      "description": "解说小哥哥",
+      "engine": "tencent"
+    },
+    {
+      "id": 101055,
+      "name": "智付",
+      "gender": "female",
+      "description": "智能收银员",
+      "engine": "tencent"
+    },
+    {
+      "id": 0,
+      "name": "度小美",
+      "gender": "female",
+      "description": "标准女主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 1,
+      "name": "度小宇",
+      "gender": "male",
+      "description": "亲切男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 3,
+      "name": "度逍遥",
+      "gender": "male",
+      "description": "情感男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4,
+      "name": "度丫丫",
+      "gender": "female",
+      "description": "童声",
+      "engine": "baidu"
+    },
+    {
+      "id": 5003,
+      "name": "度逍遥",
+      "gender": "male",
+      "description": "情感男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 5118,
+      "name": "度小鹿",
+      "gender": "female",
+      "description": "甜美女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 106,
+      "name": "度博文",
+      "gender": "male",
+      "description": "专业男主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 103,
+      "name": "度米朵",
+      "gender": "female",
+      "description": "可爱童声",
+      "engine": "baidu"
+    },
+    {
+      "id": 110,
+      "name": "度小童",
+      "gender": "male",
+      "description": "童声主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 111,
+      "name": "度小萌",
+      "gender": "female",
+      "description": "软萌妹子",
+      "engine": "baidu"
+    },
+    {
+      "id": 5,
+      "name": "度小娇",
+      "gender": "female",
+      "description": "成熟女主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 4003,
+      "name": "度逍遥",
+      "gender": "male",
+      "description": "情感男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4106,
+      "name": "度博文",
+      "gender": "male",
+      "description": "专业男主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 4115,
+      "name": "度小贤",
+      "gender": "male",
+      "description": "电台男主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 5147,
+      "name": "度常盈",
+      "gender": "female",
+      "description": "电台女主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 5976,
+      "name": "度小皮",
+      "gender": "male",
+      "description": "萌娃童声",
+      "engine": "baidu"
+    },
+    {
+      "id": 5971,
+      "name": "度皮特",
+      "gender": "male",
+      "description": "老外男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4164,
+      "name": "度阿肯",
+      "gender": "male",
+      "description": "主播男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4176,
+      "name": "度有为",
+      "gender": "male",
+      "description": "磁性男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4259,
+      "name": "度小新",
+      "gender": "female",
+      "description": "播音女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4119,
+      "name": "度小鹿",
+      "gender": "female",
+      "description": "甜美女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4105,
+      "name": "度灵儿",
+      "gender": "female",
+      "description": "清激女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4117,
+      "name": "度小乔",
+      "gender": "female",
+      "description": "活泼女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4288,
+      "name": "度晴岚",
+      "gender": "female",
+      "description": "甜美女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4192,
+      "name": "度青川",
+      "gender": "male",
+      "description": "温柔男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4100,
+      "name": "度小雯",
+      "gender": "female",
+      "description": "活力女主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 4103,
+      "name": "度米朵",
+      "gender": "female",
+      "description": "可爱女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4144,
+      "name": "度姗姗",
+      "gender": "female",
+      "description": "娱乐女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4278,
+      "name": "度小贝",
+      "gender": "female",
+      "description": "知识女主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 4143,
+      "name": "度清风",
+      "gender": "male",
+      "description": "配音男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4140,
+      "name": "度小新",
+      "gender": "female",
+      "description": "专业女主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 4129,
+      "name": "度小彦",
+      "gender": "male",
+      "description": "知识男主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 4149,
+      "name": "度星河",
+      "gender": "male",
+      "description": "广告男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4254,
+      "name": "度小清",
+      "gender": "female",
+      "description": "广告女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4206,
+      "name": "度博文",
+      "gender": "male",
+      "description": "综艺男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4147,
+      "name": "度云朵",
+      "gender": "female",
+      "description": "可爱童声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4141,
+      "name": "度婉婉",
+      "gender": "female",
+      "description": "甜美女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4226,
+      "name": "南方",
+      "gender": "female",
+      "description": "电台女主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 6205,
+      "name": "度悠然",
+      "gender": "male",
+      "description": "旁白男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 6221,
+      "name": "度云萱",
+      "gender": "female",
+      "description": "旁白女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 6546,
+      "name": "度清豪",
+      "gender": "male",
+      "description": "逍遥侠客",
+      "engine": "baidu"
+    },
+    {
+      "id": 6602,
+      "name": "度清柔",
+      "gender": "male",
+      "description": "温柔男神",
+      "engine": "baidu"
+    },
+    {
+      "id": 6562,
+      "name": "度雨楠",
+      "gender": "female",
+      "description": "元气少女",
+      "engine": "baidu"
+    },
+    {
+      "id": 6543,
+      "name": "度雨萌",
+      "gender": "female",
+      "description": "邻家女孩",
+      "engine": "baidu"
+    },
+    {
+      "id": 6747,
+      "name": "度书古",
+      "gender": "male",
+      "description": "情感男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 6748,
+      "name": "度书严",
+      "gender": "male",
+      "description": "沉稳男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 6746,
+      "name": "度书道",
+      "gender": "male",
+      "description": "沉稳男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 6644,
+      "name": "度书宁",
+      "gender": "female",
+      "description": "亲和女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4148,
+      "name": "度小夏",
+      "gender": "female",
+      "description": "甜美女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4277,
+      "name": "西贝",
+      "gender": "female",
+      "description": "脱口秀女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4114,
+      "name": "阿龙",
+      "gender": "male",
+      "description": "说书男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 5153,
+      "name": "度常悦",
+      "gender": "female",
+      "description": "民生女主播",
+      "engine": "baidu"
+    },
+    {
+      "id": 6561,
+      "name": "度小乐",
+      "gender": "male",
+      "description": "可爱童声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4179,
+      "name": "度泽言",
+      "gender": "male",
+      "description": "温暖男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4146,
+      "name": "度禧禧",
+      "gender": "female",
+      "description": "阳光女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 6567,
+      "name": "度小柔",
+      "gender": "female",
+      "description": "温柔女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4156,
+      "name": "度言浩",
+      "gender": "male",
+      "description": "年轻男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4157,
+      "name": "度言静",
+      "gender": "female",
+      "description": "明亮女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4189,
+      "name": "度涵竹",
+      "gender": "female",
+      "description": "开朗女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4194,
+      "name": "度嫣然",
+      "gender": "female",
+      "description": "活泼女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4193,
+      "name": "度泽言",
+      "gender": "male",
+      "description": "开朗男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4195,
+      "name": "度怀安",
+      "gender": "male",
+      "description": "磁性男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4196,
+      "name": "度清影",
+      "gender": "female",
+      "description": "甜美女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4197,
+      "name": "度沁遥",
+      "gender": "female",
+      "description": "知性女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 20100,
+      "name": "度小粤",
+      "gender": "female",
+      "description": "粤语女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 20101,
+      "name": "度晓芸",
+      "gender": "female",
+      "description": "粤语女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4257,
+      "name": "四川小哥",
+      "gender": "male",
+      "description": "四川男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4132,
+      "name": "度阿闽",
+      "gender": "male",
+      "description": "闽南男声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4139,
+      "name": "度小蓉",
+      "gender": "female",
+      "description": "四川女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 5977,
+      "name": "台媒女声",
+      "gender": "female",
+      "description": "台湾女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4007,
+      "name": "度小台",
+      "gender": "female",
+      "description": "台湾女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4150,
+      "name": "度湘玉",
+      "gender": "female",
+      "description": "陕西女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4134,
+      "name": "度阿锦",
+      "gender": "female",
+      "description": "东北女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4172,
+      "name": "度筱林",
+      "gender": "female",
+      "description": "天津女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 5980,
+      "name": "度阿花",
+      "gender": "female",
+      "description": "上海女声",
+      "engine": "baidu"
+    },
+    {
+      "id": 4154,
+      "name": "度老崔",
+      "gender": "male",
+      "description": "北京男声",
+      "engine": "baidu"
+    }
+  ]
+}

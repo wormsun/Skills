@@ -1,0 +1,4 @@
+interface:
+  display_name: "小说改沙雕动画剧本"
+  short_description: "将小说章节改编为沙雕动画小助手可制作的短视频剧本模板"
+  default_prompt: "把以下小说内容改编为适合沙雕动画小助手制作的短视频剧本。"
