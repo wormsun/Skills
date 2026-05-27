@@ -16,6 +16,7 @@ Use this skill to adapt novels into scripts that can be produced in 沙雕动画
 - Adaptation mode: faithful adaptation by default. Do not activate copyright-risk reduction unless the user explicitly asks for 原创化, 低相似, 避免版权风险, 改名换设定, or similar.
 - Output style: audio-first narration/dialogue, fast, humorous, dramatic, exaggerated, and production-ready; avoid literary prose.
 - Default script tables do not include `画面配合`. Use `序号 | 旁白/对白 | 音效/BGM` unless the user explicitly requests storyboard/visual handoff columns.
+- Script act divisions (幕): divide by physical scene/location changes, not by time ranges. Each change of location starts a new 幕. Returning to a previously visited location within the same episode still counts as a new 幕 (e.g., 偏院小屋 appears in 第一幕 and returns in 第五幕). Use heading format `### 第X幕：场景名——功能简述`. Include `承接上一幕` and `转入下一幕` to describe the spatial transition between scenes.
 
 ## Workflow
 

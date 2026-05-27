@@ -12,19 +12,19 @@ Use for direct writing and review:
 - 角色表
 - 场景表
 - 开场钩子
-- 正文剧本 with time blocks and production rows
+- 正文剧本 with scene blocks (幕) and production rows
 - 结尾钩子
 - 制作备注
 
-Each time block should include an audio-first production line table. Every row must be understandable by listening alone.
+Each scene block (幕) is divided by physical location change. Every new location starts a new 幕. Use heading format `### 第X幕：场景名——功能简述`. Each scene block should include an audio-first production line table. Every row must be understandable by listening alone.
 
-Each time block should also include a connective function:
+Each scene block should also include a connective function:
 
-- 承接上一幕: the line, action, or question that leads into this block.
+- 承接上一幕: the line, action, or question that leads into this block, including the spatial transition from the previous scene.
 - 制作行表: line-level rows for 沙雕动画小助手 production.
 - 旁白/对白: the exact spoken text. Important actions, scene changes, objects, memory, character relationships, causality, and exposition must be stated here.
 - 音效/BGM: optional audio support. It must not carry required plot information.
-- 转入下一幕: the line, action, or hook that causes the next block.
+- 转入下一幕: the line, action, or hook that causes the next block, including where the character goes next.
 
 Default table columns:
 
