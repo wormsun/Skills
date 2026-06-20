@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 
 
 QUERY_URL = "https://www.cninfo.com.cn/new/hisAnnouncement/query"
@@ -52,10 +53,32 @@ def form_encode(data: dict[str, Any]) -> bytes:
     return urlencode(data).encode("utf-8")
 
 
-def post_json(url: str, data: dict[str, Any]) -> dict[str, Any]:
+class DownloadError(RuntimeError):
+    pass
+
+
+def request_with_retries(req: Request, *, timeout: float, retries: int, retry_sleep: float) -> bytes:
+    last_error: Exception | None = None
+    for attempt in range(retries + 1):
+        try:
+            with urlopen(req, timeout=timeout) as resp:
+                return resp.read()
+        except (HTTPError, URLError, TimeoutError, OSError) as exc:
+            last_error = exc
+            if attempt >= retries:
+                break
+            time.sleep(retry_sleep * (attempt + 1))
+    raise DownloadError(f"request failed after {retries + 1} attempts: {last_error}") from last_error
+
+
+def post_json(url: str, data: dict[str, Any], *, timeout: float, retries: int, retry_sleep: float) -> dict[str, Any]:
     req = Request(url, data=form_encode(data), headers=HEADERS, method="POST")
-    with urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    raw = request_with_retries(req, timeout=timeout, retries=retries, retry_sleep=retry_sleep)
+    try:
+        return json.loads(raw.decode("utf-8"))
+    except json.JSONDecodeError as exc:
+        preview = raw[:200].decode("utf-8", errors="replace")
+        raise DownloadError(f"CNINFO returned non-JSON response: {preview}") from exc
 
 
 def query_announcements(
@@ -65,6 +88,9 @@ def query_announcements(
     column: str,
     plate: str,
     page_size: int = 50,
+    timeout: float = 30,
+    retries: int = 2,
+    retry_sleep: float = 1.0,
 ) -> list[dict[str, Any]]:
     payload = {
         "stock": stock,
@@ -77,7 +103,7 @@ def query_announcements(
         "seDate": "",
         "isHLtitle": "true",
     }
-    result = post_json(QUERY_URL, payload)
+    result = post_json(QUERY_URL, payload, timeout=timeout, retries=retries, retry_sleep=retry_sleep)
     return result.get("announcements") or []
 
 
@@ -147,10 +173,13 @@ def make_pdf_url(item: dict[str, Any]) -> str:
     return urljoin(STATIC_BASE, adjunct)
 
 
-def download(url: str, path: Path) -> int:
+def download(url: str, path: Path, *, timeout: float, retries: int, retry_sleep: float, min_bytes: int) -> int:
     req = Request(url, headers={"User-Agent": HEADERS["User-Agent"], "Referer": HEADERS["Referer"]})
-    with urlopen(req, timeout=60) as resp:
-        data = resp.read()
+    data = request_with_retries(req, timeout=timeout, retries=retries, retry_sleep=retry_sleep)
+    if len(data) < min_bytes:
+        raise DownloadError(f"downloaded file too small: {len(data)} bytes")
+    if not data.startswith(b"%PDF"):
+        raise DownloadError("downloaded file does not look like a PDF")
     path.write_bytes(data)
     return len(data)
 
@@ -178,6 +207,9 @@ def resolve_report(args: argparse.Namespace, task: dict[str, Any]) -> dict[str, 
         column=args.column,
         plate=args.plate,
         page_size=args.page_size,
+        timeout=args.timeout,
+        retries=args.retries,
+        retry_sleep=args.retry_sleep,
     )
     if task["kind"] == "annual":
         candidates = [item for item in items if is_annual_report(item, task["year"])]
@@ -202,25 +234,44 @@ def main() -> int:
     parser.add_argument("--q1-year", type=int, action="append")
     parser.add_argument("--allow-english-q1", action="store_true")
     parser.add_argument("--page-size", type=int, default=50)
+    parser.add_argument("--timeout", type=float, default=30, help="HTTP timeout in seconds.")
+    parser.add_argument("--download-timeout", type=float, default=90, help="PDF download timeout in seconds.")
+    parser.add_argument("--retries", type=int, default=2, help="Retries after transient request failures.")
+    parser.add_argument("--retry-sleep", type=float, default=1.0, help="Base delay between retries.")
+    parser.add_argument("--min-pdf-bytes", type=int, default=1024, help="Reject PDFs smaller than this many bytes.")
     parser.add_argument("--sleep", type=float, default=0.5, help="Delay between requests.")
     parser.add_argument("--dry-run", action="store_true", help="Query and print manifest without downloading PDFs.")
     args = parser.parse_args()
 
     if bool(args.annual_start) != bool(args.annual_end):
         parser.error("--annual-start and --annual-end must be provided together")
+    if args.annual_start and args.annual_end and args.annual_start > args.annual_end:
+        parser.error("--annual-start must be less than or equal to --annual-end")
+    if args.retries < 0:
+        parser.error("--retries must be >= 0")
+    if not build_tasks(args):
+        parser.error("provide at least one report target: --annual-start/--annual-end or --q1-year")
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     manifest: list[dict[str, Any]] = []
     failures: list[str] = []
 
     for task in build_tasks(args):
-        item = resolve_report(args, task)
+        try:
+            item = resolve_report(args, task)
+        except DownloadError as exc:
+            failures.append(f"{task['kind']} {task['year']}: query failed: {exc}")
+            continue
         if not item:
             failures.append(f"{task['kind']} {task['year']}: no matching report")
             continue
 
         title = clean_title(item.get("announcementTitle", ""))
-        pdf_url = make_pdf_url(item)
+        try:
+            pdf_url = make_pdf_url(item)
+        except ValueError as exc:
+            failures.append(f"{task['kind']} {task['year']}: {exc}")
+            continue
         filename = f"{args.name}_{task['year']}_{task['kind']}_{safe_name(title)}.pdf"
         path = args.out_dir / filename
         record = {
@@ -235,10 +286,22 @@ def main() -> int:
         if args.dry_run:
             record["downloaded"] = False
         else:
-            size = download(pdf_url, path)
-            record["downloaded"] = True
-            record["bytes"] = size
-            print(f"downloaded {task['year']} {task['kind']}: {title} ({size} bytes)")
+            try:
+                size = download(
+                    pdf_url,
+                    path,
+                    timeout=args.download_timeout,
+                    retries=args.retries,
+                    retry_sleep=args.retry_sleep,
+                    min_bytes=args.min_pdf_bytes,
+                )
+                record["downloaded"] = True
+                record["bytes"] = size
+                print(f"downloaded {task['year']} {task['kind']}: {title} ({size} bytes)")
+            except DownloadError as exc:
+                record["downloaded"] = False
+                record["error"] = str(exc)
+                failures.append(f"{task['kind']} {task['year']}: download failed: {exc}")
 
         manifest.append(record)
         time.sleep(args.sleep)

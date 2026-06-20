@@ -74,6 +74,19 @@ Save three things:
 2. A `manifest.json` with report type, year, title, announcement time, source URL, and local path.
 3. Any conversion outputs, such as MarkItDown-generated Markdown files, in a separate `md/` directory.
 
+## Reliability Options
+
+The downloader includes conservative network controls:
+
+- `--timeout`: timeout for announcement queries.
+- `--download-timeout`: timeout for PDF downloads.
+- `--retries`: retry count for transient HTTP/network failures.
+- `--retry-sleep`: base delay between retries.
+- `--min-pdf-bytes`: reject very small files that are likely error pages.
+- `--dry-run`: query and write/print the manifest without downloading PDFs.
+
+If a report fails, inspect `manifest.json`: successful records keep the source URL and path, failed download records include an `error` field. Retry only the missing years when possible instead of redownloading everything.
+
 ## Verification Checklist
 
 - The title matches the requested report type and year.

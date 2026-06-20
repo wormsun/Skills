@@ -40,7 +40,26 @@ Avoid or heavily discount:
 - Businesses that look cheap only because they are declining, highly levered, cyclical, or opaque.
 - Companies where the main thesis is turnaround, policy rescue, concept hype, or a bigger fool.
 
-## 4. Financial Statement Exclusion
+## 4. Foundational Tests
+
+Before valuation, require a clear pass or a clearly stated "unknown" on all three tests:
+
+1. Profit is real:
+   - Operating cash flow should roughly confirm net profit over several years.
+   - Receivables, contract assets, related-party sales, and non-recurring gains should not explain most reported profit.
+   - Audit opinions and restatements should not raise unresolved doubts.
+2. Profit is durable:
+   - The industry should not be in structural decline.
+   - Competitive position, customer demand, substitution risk, and regulation should not obviously break the profit pool.
+   - The business should be simple enough to estimate three years out.
+3. Profit does not require excessive new capital:
+   - Maintenance capex should not consume most apparent earnings.
+   - Growth should not require repeated external financing at poor returns.
+   - Working-capital needs should not turn accounting profit into weak free cash flow.
+
+If any test fails, stop before valuation and classify the output as reject, outside ability circle, or watch-only. If data is missing, do not fill gaps with invented values; mark the item unknown and explain what data would resolve it.
+
+## 5. Financial Statement Exclusion
 
 Treat financial analysis primarily as a rejection tool. Investors are not courts: proof of fraud is unnecessary; material doubt is enough to pass.
 
@@ -57,9 +76,19 @@ Check:
 - Segment data: whether reported profit is driven by a weak or non-core segment.
 - Accounting changes: whether changes improve appearance without improving economics.
 
+Use `financial-statement-red-flags.md` for annual-report reviews or any case where reported profit quality is central to the decision.
+
+Stop before valuation when any material red flag cannot be reasonably explained:
+
+- Cash balance does not reconcile with interest income, restricted cash, debt needs, or cash-flow statement balances.
+- Receivables, inventory, contract assets, prepayments, other receivables, or construction-in-progress rise much faster than the business.
+- Operating cash flow persistently trails net profit without a credible reason.
+- Profit depends on fair-value changes, asset disposals, subsidies, accounting policy changes, or impairment reversals.
+- Audit opinions, restatements, related-party transactions, guarantees, or management disclosures create unresolved credibility doubts.
+
 If financial statements are too complex to understand, reduce the valuation multiple, reduce sizing, or reject the company.
 
-## 5. Three-Year Valuation Formula
+## 6. Three-Year Valuation Formula
 
 The practical formula:
 
@@ -93,7 +122,14 @@ Conceptual foundation:
 - Intrinsic value is discounted future free cash flow.
 - Exact DCF is usually false precision. The three-year profit plus PE method is a practical approximation with a large margin of safety.
 
-## 6. Buy Discipline
+Special cases:
+
+- Financial businesses: the basic PE/free-cash-flow framing is often insufficient; use PB/ROE, capital adequacy, credit risk, float economics, or embedded value as appropriate.
+- Loss-making or micro-profit businesses: do not force the method. Wait for stable earning power or use asset/runway analysis with clear caveats.
+- Cyclical businesses: use mid-cycle earning power, full-cycle data, lower multiples, and `cyclical-stocks.md`; never value peak earnings as if they were normal.
+- High-growth businesses: cap assumptions unless there is specific, quantified support. Treat unproven distant growth as upside, not as the base case.
+
+## 7. Buy Discipline
 
 Buy only when all are true:
 
@@ -111,7 +147,7 @@ Do not buy merely because:
 - PE/PB is low without understanding why.
 - The story is exciting or the industry has a huge total addressable market.
 
-## 7. Portfolio and Position Sizing
+## 8. Portfolio and Position Sizing
 
 A practical portfolio can be concentrated but not reckless:
 
@@ -121,7 +157,7 @@ A practical portfolio can be concentrated but not reckless:
 - Avoid leverage. A single permanent zero can destroy compounding.
 - Holding cash is acceptable when understandable equities are clearly expensive.
 
-## 8. Sell Discipline
+## 9. Sell Discipline
 
 Default posture: prefer not to sell excellent businesses. Selling high-quality equity is costly because replacement is hard.
 
@@ -140,20 +176,21 @@ Do not sell merely because:
 - Macro commentary predicts decline.
 - A temporary mark-to-market gain feels like real profit.
 
-## 9. Company Analysis Procedure
+## 10. Company Analysis Procedure
 
 1. Describe the business in one paragraph.
 2. Answer the four ability-circle questions.
-3. Identify moat type and durability.
-4. Reconcile profit with cash flow.
-5. Inspect balance-sheet risk.
-6. Assess capital allocation and shareholder treatment.
-7. Build three profit scenarios for year three.
-8. Assign PE range and justify it.
-9. Compute buy-zone and overvaluation reference points.
-10. Decide whether the output is: reject, watch, small position candidate, or high-conviction candidate.
+3. Apply the three foundational tests and stop if any fail.
+4. Identify moat type and durability.
+5. Reconcile profit with cash flow.
+6. Inspect balance-sheet risk and red flags.
+7. Assess capital allocation and shareholder treatment.
+8. Build three profit scenarios for year three.
+9. Assign PE range and justify it.
+10. Compute buy-zone and overvaluation reference points.
+11. Decide whether the output is: reject, outside ability circle, watch, small position candidate, or high-conviction candidate.
 
-## 10. Common Failure Modes
+## 11. Common Failure Modes
 
 - Mistaking a good product for a good investment.
 - Mistaking high growth for durable value.
@@ -162,3 +199,9 @@ Do not sell merely because:
 - Treating borrowed conviction as personal understanding.
 - Believing a formula can replace business judgment.
 - Confusing temporary market quotation with permanent capital loss.
+- Skipping the foundational tests and jumping directly to valuation.
+- Continuing a valuation after material unexplained financial red flags.
+- Treating peak-cycle earnings as normal earning power.
+- Using a high PE multiple to compensate for weak understanding.
+- Ignoring non-standard audit opinions, major restatements, or repeated accounting policy changes.
+- Presenting personalized buy/sell instructions instead of educational scenario analysis.

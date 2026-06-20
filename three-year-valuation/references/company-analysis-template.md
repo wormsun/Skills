@@ -1,67 +1,78 @@
 # 三年估值法公司分析模板
 
-Use this template when producing a company report.
+生成公司分析报告时使用本模板。
 
-## 1. Conclusion First
+## 1. 结论先行
 
-- Classification: reject / outside ability circle / watch / undervalued candidate / high-conviction candidate.
-- Main reason in one sentence.
-- Biggest uncertainty.
-- Not investment advice; scenario analysis only.
+- 分类：排除 / 超出能力圈 / 观察 / 低估候选 / 高确定性候选。
+- 用一句话说明主要原因。
+- 说明最大的未知或不确定性。
+- 明确说明这只是情景分析，不构成投资建议。
 
-## 2. Business Understanding
+## 2. 业务理解
 
-- What does the company sell?
-- Who pays?
-- Why do customers choose it?
-- What would competitors need to attack it?
-- Is the business simple enough to estimate three years out?
+- 公司卖什么产品或服务？
+- 谁付钱？
+- 客户为什么选择它？
+- 竞争对手需要具备什么条件才能攻击它？
+- 这个业务是否足够简单，能够估算三年后的经营状态？
 
-## 3. Moat and Durability
+## 3. 基础检验
 
-- Moat type.
-- Evidence from ROE/ROIC, margins, share, pricing power, retention, cost, network, regulation, or brand.
-- Threats that could narrow or bypass the moat.
+| 检验项 | 通过 / 未通过 / 未知 | 证据 | 未通过是否停止 |
+| --- | --- | --- | --- |
+| 利润真实 |  |  | 是 |
+| 利润可持续 |  |  | 是 |
+| 维持盈利不需要过度新增资本 |  |  | 是 |
 
-## 4. Financial Exclusion Checklist
+如果任一检验未通过，估值前停止，并将公司归类为排除、超出能力圈或仅观察。
 
-- Revenue and receivables.
-- Net profit versus operating cash flow.
-- Inventory and gross margin.
-- Capex and depreciation.
-- Debt and off-balance-sheet pressure.
-- Goodwill, acquisitions, and impairment risk.
-- Dividends/buybacks versus free cash flow.
-- Accounting changes or non-recurring gains.
+## 4. 护城河与持续性
 
-## 5. Year-Three Profit Scenarios
+- 护城河类型。
+- 来自 ROE/ROIC、利润率、份额、定价权、留存率、成本、网络效应、监管或品牌的证据。
+- 可能削弱或绕过护城河的威胁。
 
-| Scenario | Revenue driver | Margin assumption | Year-3 net profit | Confidence |
+## 5. 财务排除清单
+
+- 收入与应收。
+- 净利润与经营现金流。
+- 存货与毛利率。
+- 资本开支与折旧。
+- 债务与表外压力。
+- 商誉、并购和减值风险。
+- 分红/回购与自由现金流。
+- 会计变更或非经常性收益。
+- 来自 `financial-statement-red-flags.md` 的重大红灯/黄灯信号。
+
+## 6. 第三年利润情景
+
+| 情景 | 收入驱动 | 利润率假设 | 第三年净利润 | 置信度 |
 | --- | --- | --- | ---: | --- |
-| Conservative |  |  |  |  |
-| Base |  |  |  |  |
-| Optimistic |  |  |  |  |
+| 保守 |  |  |  |  |
+| 基准 |  |  |  |  |
+| 乐观 |  |  |  |  |
 
-## 6. Valuation
+## 7. 估值
 
-| Scenario | Year-3 net profit | PE | Year-3 value | Buy-zone value | Leverage adjustment |
+| 情景 | 第三年净利润 | PE | 第三年合理价值 | 买入区间参考 | 杠杆调整 |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Conservative |  |  |  |  |  |
-| Base |  |  |  |  |  |
-| Optimistic |  |  |  |  |  |
+| 保守 |  |  |  |  |  |
+| 基准 |  |  |  |  |  |
+| 乐观 |  |  |  |  |  |
 
-Explain the PE range using moat durability, business certainty, growth, leverage, and interest-rate context.
+用护城河持续性、业务确定性、增长、杠杆和利率环境解释 PE 区间。
 
-## 7. Position Sizing Logic
+## 8. 仓位逻辑
 
-- Understanding depth.
-- Certainty level.
-- Suggested analytical sizing band, if the user asks for portfolio framing: watch / under 10% / 10-15% / 15-25% / above 25%.
-- Do not present as personalized advice.
+- 理解深度。
+- 确定性水平。
+- 如果用户要求组合框架，可给出分析性仓位区间：观察 / 10% 以下 / 10%-15% / 15%-25% / 25% 以上。
+- 不要表述为个性化投资建议。
 
-## 8. What Would Change the View
+## 9. 什么会改变判断
 
-- Thesis-break events.
-- Financial warning signs.
-- Valuation changes.
-- Data needed before acting.
+- 投资逻辑破裂事件。
+- 财务预警信号。
+- 估值变化。
+- 行动前还需要的数据。
