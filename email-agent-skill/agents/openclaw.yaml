@@ -1,0 +1,8 @@
+interface:
+  display_name: "Email Agent"
+  short_description: "Safe IMAP/SMTP email analysis, cleanup plans, and task routing"
+  default_prompt: "Use the email-agent CLI to inspect recent unread mail, classify actionable items, and produce a safe plan before mutating anything."
+
+policy:
+  allow_implicit_invocation: true
+  default_mode: "read_only"

@@ -1,0 +1,572 @@
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+from analysis import analyze_summaries, is_cleanup_protected
+from audit import write_audit
+from cleanup_plan import build_cleanup_plan, plan_delete_records, summarize_plan
+from config import ConfigError, default_audit_path, get_account, load_config, validate_config
+from imap_client import EmailIMAPClient, IMAPError, quote_mailbox, resolve_safe_delete_target
+from mime_parser import parse_email
+from router import build_task_package, classify_email, render_prompt, task_to_json
+from smtp_client import recipients_allowed, send_mail
+
+
+for stream_name in ("stdout", "stderr"):
+    stream = getattr(sys, stream_name)
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        return args.func(args)
+    except (ConfigError, IMAPError, OSError, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="email-agent", description="Local IMAP/SMTP email agent CLI")
+    parser.add_argument("--config", help="Path to config.yaml")
+
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    config_parser = sub.add_parser("config")
+    config_sub = config_parser.add_subparsers(dest="config_command", required=True)
+    validate = config_sub.add_parser("validate")
+    validate.set_defaults(func=cmd_config_validate)
+
+    mailboxes = sub.add_parser("mailboxes")
+    add_account(mailboxes)
+    mailboxes.set_defaults(func=cmd_mailboxes)
+
+    list_cmd = sub.add_parser("list")
+    add_account(list_cmd)
+    list_cmd.add_argument("--mailbox", default="INBOX")
+    list_cmd.add_argument("--limit", type=int, default=20)
+    list_cmd.set_defaults(func=cmd_list)
+
+    search = sub.add_parser("search")
+    add_account(search)
+    search.add_argument("--mailbox", default="INBOX")
+    search.add_argument("--query", required=True)
+    search.add_argument("--limit", type=int, default=20)
+    search.set_defaults(func=cmd_search)
+
+    analyze = sub.add_parser("analyze")
+    add_account(analyze)
+    analyze.add_argument("--mailbox", default="INBOX")
+    analyze.add_argument("--query", default="unread")
+    analyze.add_argument("--limit", type=int, default=0, help="0 means all matches")
+    analyze.add_argument("--recent-limit", type=int, default=20)
+    analyze.add_argument("--format", default="text", choices=["text", "json"])
+    analyze.add_argument("--output", help="Write JSON analysis to a file")
+    analyze.set_defaults(func=cmd_analyze)
+
+    analyze_period = sub.add_parser("analyze-period")
+    add_account(analyze_period)
+    analyze_period.add_argument("--mailbox", default="INBOX")
+    analyze_period.add_argument("--since", required=True, help="Inclusive date in YYYY-MM-DD")
+    analyze_period.add_argument("--before", required=True, help="Exclusive date in YYYY-MM-DD")
+    analyze_period.add_argument("--limit", type=int, default=0, help="0 means all matches")
+    analyze_period.add_argument("--recent-limit", type=int, default=20)
+    analyze_period.add_argument("--format", default="text", choices=["text", "json"])
+    analyze_period.add_argument("--output", help="Write JSON analysis to a file")
+    analyze_period.set_defaults(func=cmd_analyze_period)
+
+    read = sub.add_parser("read")
+    add_account(read)
+    read.add_argument("--mailbox", default="INBOX")
+    read.add_argument("--id", required=True, help="IMAP UID")
+    read.add_argument("--json", action="store_true", help="Output parsed JSON")
+    read.set_defaults(func=cmd_read)
+
+    route = sub.add_parser("route")
+    add_account(route)
+    route.add_argument("--mailbox", default="INBOX")
+    route.add_argument("--id", required=True, help="IMAP UID")
+    route.add_argument("--target", default="codex", choices=["codex", "openclaw", "claude-code", "workbuddy", "json"])
+    route.add_argument("--format", default="markdown", choices=["markdown", "json"])
+    route.set_defaults(func=cmd_route)
+
+    cleanup_plan = sub.add_parser("cleanup-plan")
+    add_account(cleanup_plan)
+    cleanup_plan.add_argument("--mailbox", default="INBOX")
+    cleanup_plan.add_argument("--query", required=True)
+    cleanup_plan.add_argument("--limit", type=int, default=0, help="0 means all matches")
+    cleanup_plan.add_argument("--body-window", type=int, default=65536, help="Bytes to read from each message for classification")
+    cleanup_plan.add_argument("--format", default="text", choices=["text", "json"])
+    cleanup_plan.add_argument("--output", help="Write JSON plan to a file")
+    cleanup_plan.set_defaults(func=cmd_cleanup_plan)
+
+    apply_plan = sub.add_parser("apply-plan")
+    add_account(apply_plan)
+    apply_plan.add_argument("--plan", required=True, help="JSON plan generated by cleanup-plan")
+    apply_plan.add_argument("--mailbox", help="Override source mailbox from plan")
+    apply_plan.add_argument("--target-mailbox", help="Override safe-delete target mailbox")
+    apply_plan.add_argument("--yes", action="store_true", help="Do not prompt for confirmation")
+    apply_plan.set_defaults(func=cmd_apply_plan)
+
+    trash = sub.add_parser("trash")
+    add_account(trash)
+    trash.add_argument("--mailbox", default="INBOX")
+    trash.add_argument("--id", required=True, help="IMAP UID")
+    trash.add_argument("--target-mailbox", help="Override safe-delete target mailbox")
+    trash.add_argument("--yes", action="store_true", help="Do not prompt for confirmation")
+    trash.set_defaults(func=cmd_trash)
+
+    cleanup = sub.add_parser("cleanup")
+    add_account(cleanup)
+    cleanup.add_argument("--mailbox", default="INBOX")
+    cleanup.add_argument("--rule", required=True, choices=["newsletters", "marketing", "notifications"])
+    cleanup.add_argument("--limit", type=int, default=50)
+    cleanup.add_argument("--dry-run", action="store_true")
+    cleanup.add_argument("--apply", action="store_true")
+    cleanup.add_argument("--yes", action="store_true")
+    cleanup.set_defaults(func=cmd_cleanup)
+
+    send = sub.add_parser("send")
+    add_account(send)
+    send.add_argument("--to", required=True, help="Comma-separated recipients")
+    send.add_argument("--subject", required=True)
+    send.add_argument("--body-file", required=True)
+    send.add_argument("--yes", action="store_true")
+    send.set_defaults(func=cmd_send)
+
+    reply = sub.add_parser("reply")
+    add_account(reply)
+    reply.add_argument("--mailbox", default="INBOX")
+    reply.add_argument("--id", required=True, help="IMAP UID")
+    reply.add_argument("--body-file", required=True)
+    reply.add_argument("--yes", action="store_true")
+    reply.set_defaults(func=cmd_reply)
+
+    return parser
+
+
+def add_account(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--account", required=True)
+
+
+def load_runtime(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any]]:
+    config = load_config(args.config)
+    errors = validate_config(config)
+    if errors:
+        raise ConfigError("Invalid config:\n- " + "\n- ".join(errors))
+    return config, get_account(config, args.account)
+
+
+def cmd_config_validate(args: argparse.Namespace) -> int:
+    config = load_config(args.config)
+    errors = validate_config(config)
+    if errors:
+        print("Invalid config:")
+        for error in errors:
+            print(f"- {error}")
+        return 1
+    print("Config OK")
+    print(f"Accounts: {', '.join(account['name'] for account in config.get('accounts', []))}")
+    return 0
+
+
+def cmd_mailboxes(args: argparse.Namespace) -> int:
+    _, account = load_runtime(args)
+    with EmailIMAPClient(account) as client:
+        for mailbox in client.list_mailboxes():
+            flags = " ".join(mailbox.flags)
+            print(f"{mailbox.name}\t{flags}")
+    return 0
+
+
+def cmd_list(args: argparse.Namespace) -> int:
+    _, account = load_runtime(args)
+    with EmailIMAPClient(account) as client:
+        print_summaries(client.list_messages(mailbox=args.mailbox, limit=args.limit))
+    return 0
+
+
+def cmd_search(args: argparse.Namespace) -> int:
+    _, account = load_runtime(args)
+    with EmailIMAPClient(account) as client:
+        print_summaries(client.list_messages(mailbox=args.mailbox, limit=args.limit, query=args.query))
+    return 0
+
+
+def cmd_analyze(args: argparse.Namespace) -> int:
+    _, account = load_runtime(args)
+    with EmailIMAPClient(account) as client:
+        messages = client.list_messages(mailbox=args.mailbox, limit=args.limit, query=args.query)
+    analysis = analyze_summaries(messages, recent_limit=args.recent_limit)
+    if args.output:
+        Path(args.output).write_text(json.dumps(analysis, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"Wrote analysis JSON to {args.output}")
+    if args.format == "json":
+        print(json.dumps(analysis, ensure_ascii=False, indent=2))
+    else:
+        print_analysis(analysis)
+    return 0
+
+
+def cmd_analyze_period(args: argparse.Namespace) -> int:
+    args.query = f"since:{args.since} before:{args.before}"
+    return cmd_analyze(args)
+
+
+def cmd_read(args: argparse.Namespace) -> int:
+    _, account = load_runtime(args)
+    with EmailIMAPClient(account) as client:
+        parsed = parse_email(client.fetch_raw(args.id, mailbox=args.mailbox)).to_dict()
+    if args.json:
+        print(json.dumps(parsed, ensure_ascii=False, indent=2, sort_keys=True))
+    else:
+        print_message(parsed)
+    return 0
+
+
+def cmd_route(args: argparse.Namespace) -> int:
+    _, account = load_runtime(args)
+    with EmailIMAPClient(account) as client:
+        parsed = parse_email(client.fetch_raw(args.id, mailbox=args.mailbox)).to_dict()
+    task = build_task_package(account["name"], args.id, parsed)
+    if args.format == "json" or args.target == "json":
+        print(task_to_json(task))
+    else:
+        print(render_prompt(task, target=args.target))
+    return 0
+
+
+def cmd_cleanup_plan(args: argparse.Namespace) -> int:
+    _, account = load_runtime(args)
+    with EmailIMAPClient(account) as client:
+        uids = client.search(query=args.query, mailbox=args.mailbox, limit=args.limit)
+        summaries = client.fetch_summaries(uids)
+        by_uid = {summary.uid: summary for summary in summaries}
+        messages = []
+        for uid in uids:
+            summary = by_uid.get(uid)
+            if not summary:
+                continue
+            try:
+                parsed = parse_email(client.fetch_partial(uid, mailbox=args.mailbox, size=args.body_window)).to_dict()
+            except Exception:
+                parsed = None
+            messages.append((summary, parsed))
+    plan = build_cleanup_plan(messages, query=args.query, mailbox=args.mailbox, account_name=account["name"])
+    if args.output:
+        Path(args.output).write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"Wrote cleanup plan JSON to {args.output}")
+    if args.format == "json":
+        print(json.dumps(plan, ensure_ascii=False, indent=2))
+    else:
+        print(summarize_plan(plan))
+    return 0
+
+
+def cmd_apply_plan(args: argparse.Namespace) -> int:
+    config, account = load_runtime(args)
+    plan = json.loads(Path(args.plan).read_text(encoding="utf-8"))
+    candidates = plan_delete_records(plan)
+    if not candidates:
+        print("No delete candidates in plan.")
+        return 0
+    source_mailbox = args.mailbox or plan.get("mailbox") or "INBOX"
+    audit_path = default_audit_path(config)
+    with EmailIMAPClient(account) as client:
+        mailboxes = client.list_mailboxes()
+        target = args.target_mailbox or resolve_safe_delete_target(account, mailboxes)
+        if not target:
+            raise IMAPError("No safe-delete target found. Plan apply skipped.")
+        if not args.yes and not confirm(f"Safe-delete {len(candidates)} plan candidates from {source_mailbox} to {target}?"):
+            print("Cancelled")
+            return 1
+        client.select(source_mailbox, readonly=False)
+        results = []
+        for index in range(0, len(candidates), 50):
+            chunk = candidates[index : index + 50]
+            uidset = ",".join(str(record["uid"]) for record in chunk)
+            typ, _ = client._conn().uid("COPY", uidset, quote_mailbox(target))
+            if typ != "OK":
+                raise IMAPError(f"Unable to copy plan chunk starting with UID {chunk[0]['uid']} to {target}")
+            typ, _ = client._conn().uid("STORE", uidset, "+FLAGS.SILENT", r"(\Deleted)")
+            if typ != "OK":
+                raise IMAPError(f"Copied plan chunk starting with UID {chunk[0]['uid']}, but failed to mark originals as deleted.")
+            results.extend({"uid": record["uid"], "result": "copied_marked_deleted_no_expunge"} for record in chunk)
+
+    write_audit(
+        audit_path,
+        {
+            "account": account["name"],
+            "action": "apply-plan",
+            "plan": args.plan,
+            "message_count": len(candidates),
+            "source_mailbox": source_mailbox,
+            "target_mailbox": target,
+            "results": results,
+            "confirmation": "auto_yes" if args.yes else "manual",
+        },
+    )
+    print(f"Safe-deleted {len(candidates)} plan candidates to {target}")
+    return 0
+
+
+def cmd_trash(args: argparse.Namespace) -> int:
+    config, account = load_runtime(args)
+    audit_path = default_audit_path(config)
+    with EmailIMAPClient(account) as client:
+        mailboxes = client.list_mailboxes()
+        target = args.target_mailbox or resolve_safe_delete_target(account, mailboxes)
+        if not target:
+            raise IMAPError("No safe-delete target found. Configure delete.target_mailbox or enable a confirmed quarantine mailbox.")
+
+        existing = {mailbox.name for mailbox in mailboxes}
+        if target not in existing and (account.get("delete") or {}).get("create_quarantine_if_missing"):
+            if args.yes or confirm(f"Create safe-delete mailbox '{target}'?"):
+                client.create_mailbox(target)
+            else:
+                raise IMAPError("Safe-delete cancelled; target mailbox does not exist.")
+
+        if not args.yes and not confirm(f"Move message UID {args.id} from {args.mailbox} to {target}?"):
+            print("Cancelled")
+            return 1
+        result = client.safe_delete(args.id, target, source_mailbox=args.mailbox)
+
+    write_audit(
+        audit_path,
+        {
+            "account": account["name"],
+            "action": "trash",
+            "message_uid": args.id,
+            "source_mailbox": args.mailbox,
+            "target_mailbox": target,
+            "result": result,
+            "confirmation": "auto_yes" if args.yes else "manual",
+        },
+    )
+    print(f"Safe-deleted UID {args.id} to {target} ({result})")
+    return 0
+
+
+def cmd_cleanup(args: argparse.Namespace) -> int:
+    if args.dry_run and args.apply:
+        raise ValueError("Use either --dry-run or --apply, not both.")
+    if not args.dry_run and not args.apply:
+        raise ValueError("cleanup requires --dry-run or --apply.")
+
+    config, account = load_runtime(args)
+    audit_path = default_audit_path(config)
+    with EmailIMAPClient(account) as client:
+        candidates = cleanup_candidates(client.list_messages(mailbox=args.mailbox, limit=args.limit), args.rule, config)
+        if not candidates:
+            print("No cleanup candidates.")
+            return 0
+        print_summaries(candidates)
+        if args.dry_run:
+            print(f"Dry run only. Candidates: {len(candidates)}")
+            return 0
+
+        mailboxes = client.list_mailboxes()
+        target = resolve_safe_delete_target(account, mailboxes)
+        if not target:
+            raise IMAPError("No safe-delete target found. Cleanup skipped.")
+        if not args.yes and not confirm(f"Safe-delete {len(candidates)} messages to {target}?"):
+            print("Cancelled")
+            return 1
+        results = []
+        for item in candidates:
+            results.append({"uid": item.uid, "result": client.safe_delete(item.uid, target, source_mailbox=args.mailbox)})
+
+    write_audit(
+        audit_path,
+        {
+            "account": account["name"],
+            "action": "cleanup",
+            "rule": args.rule,
+            "message_count": len(candidates),
+            "target_mailbox": target,
+            "results": results,
+            "confirmation": "auto_yes" if args.yes else "manual",
+        },
+    )
+    print(f"Safe-deleted {len(candidates)} messages to {target}")
+    return 0
+
+
+def cmd_send(args: argparse.Namespace) -> int:
+    config, account = load_runtime(args)
+    recipients = split_recipients(args.to)
+    body = Path(args.body_file).read_text(encoding="utf-8")
+    if args.yes and not recipients_allowed(config, recipients):
+        raise ConfigError("--yes send is not allowed by safety policy for these recipients.")
+    if not args.yes and not confirm_send(recipients, args.subject, body):
+        print("Cancelled")
+        return 1
+    result = send_mail(account, recipients, args.subject, body)
+    write_audit(
+        default_audit_path(config),
+        {
+            "account": account["name"],
+            "action": "send",
+            "to": recipients,
+            "subject": args.subject,
+            "result": "success",
+            "smtp_message_id": result,
+            "confirmation": "auto_yes" if args.yes else "manual",
+        },
+    )
+    print("Sent")
+    return 0
+
+
+def cmd_reply(args: argparse.Namespace) -> int:
+    config, account = load_runtime(args)
+    with EmailIMAPClient(account) as client:
+        parsed = parse_email(client.fetch_raw(args.id, mailbox=args.mailbox)).to_dict()
+    recipients = [parsed["sender"]]
+    subject = parsed["subject"] or ""
+    if not subject.lower().startswith("re:"):
+        subject = f"Re: {subject}"
+    body = Path(args.body_file).read_text(encoding="utf-8")
+
+    if args.yes and not recipients_allowed(config, recipients):
+        raise ConfigError("--yes reply is not allowed by safety policy for this recipient.")
+    if not args.yes and not confirm_send(recipients, subject, body):
+        print("Cancelled")
+        return 1
+    result = send_mail(account, recipients, subject, body, reply_to_message=parsed)
+    write_audit(
+        default_audit_path(config),
+        {
+            "account": account["name"],
+            "action": "reply",
+            "message_uid": args.id,
+            "to": recipients,
+            "subject": subject,
+            "result": "success",
+            "smtp_message_id": result,
+            "confirmation": "auto_yes" if args.yes else "manual",
+        },
+    )
+    print("Sent")
+    return 0
+
+
+def print_summaries(messages) -> None:
+    for item in messages:
+        flags = " ".join(item.flags)
+        print(f"{item.uid}\t{item.date or ''}\t{item.sender}\t{item.subject}\t{flags}")
+
+
+def print_message(parsed: dict[str, Any]) -> None:
+    print(f"From: {parsed.get('sender')}")
+    print(f"To: {', '.join(parsed.get('to') or [])}")
+    print(f"Subject: {parsed.get('subject')}")
+    print(f"Date: {parsed.get('date')}")
+    if parsed.get("attachments"):
+        print("Attachments:")
+        for item in parsed["attachments"]:
+            print(f"- {item['filename']} ({item['content_type']}, {item['size']} bytes)")
+    print()
+    print(parsed.get("text") or "")
+
+
+def cleanup_candidates(messages, rule: str, config: dict[str, Any]):
+    vip_senders = {item.lower() for item in (((config.get("safety") or {}).get("cleanup") or {}).get("vip_senders", []))}
+    low_value_senders = {item.lower() for item in (((config.get("safety") or {}).get("cleanup") or {}).get("low_value_senders", []))}
+    candidates = []
+    for item in messages:
+        sender = item.sender.lower()
+        subject = item.subject.lower()
+        combined = f"{sender} {subject}"
+        if is_cleanup_protected(item) or is_cleanup_excluded(combined):
+            continue
+        if any(vip in sender for vip in vip_senders):
+            continue
+        if any(low in sender for low in low_value_senders):
+            candidates.append(item)
+            continue
+        if rule == "newsletters" and any(token in subject or token in sender for token in ["newsletter", "digest", "weekly", "unsubscribe", "简报", "newsletter@"]):
+            candidates.append(item)
+        elif rule == "marketing" and any(token in subject for token in ["sale", "promo", "offer", "discount", "营销", "优惠"]):
+            candidates.append(item)
+        elif rule == "notifications" and any(token in sender or token in subject for token in ["no-reply", "noreply", "notification", "notify", "通知"]):
+            candidates.append(item)
+    return candidates
+
+
+def is_cleanup_excluded(text: str) -> bool:
+    excluded_tokens = [
+        "security",
+        "安全",
+        "password",
+        "密码",
+        "2-step",
+        "两步验证",
+        "verification code",
+        "验证码",
+        "invoice",
+        "receipt",
+        "order",
+        "payment",
+        "subscription",
+        "发票",
+        "收据",
+        "订单",
+        "付款",
+        "订阅",
+        "privacy",
+        "policy",
+        "隐私",
+        "google play",
+        "accounts.google.com",
+    ]
+    return any(token in text for token in excluded_tokens)
+
+
+def print_analysis(analysis: dict[str, Any]) -> None:
+    print(f"Unread/matched messages: {analysis['count']}")
+    print()
+    print("By type:")
+    for label, count in analysis["by_type"]:
+        pct = (count / analysis["count"] * 100) if analysis["count"] else 0
+        print(f"- {label}: {count} ({pct:.1f}%)")
+    print()
+    print("By year:")
+    for year, count in analysis["by_year"]:
+        print(f"- {year}: {count}")
+    print()
+    print("Top domains:")
+    for domain, count in analysis["top_domains"]:
+        print(f"- {domain}: {count}")
+    print()
+    print("Recent messages:")
+    for item in analysis["recent"]:
+        print(f"- {item['uid']} | {item['date'] or ''} | {item['type']} | {item['from']} | {item['subject']}")
+
+
+def split_recipients(value: str) -> list[str]:
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def confirm_send(recipients: list[str], subject: str, body: str) -> bool:
+    print("About to send email:")
+    print(f"To: {', '.join(recipients)}")
+    print(f"Subject: {subject}")
+    print()
+    print(body)
+    return confirm("Send this email?")
+
+
+def confirm(prompt: str) -> bool:
+    answer = input(f"{prompt} Type 'yes' to continue: ")
+    return answer.strip().lower() == "yes"
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,38 @@
+accounts:
+  - name: gmail-main
+    provider: gmail
+    email: user@gmail.com
+    imap:
+      host: imap.gmail.com
+      port: 993
+      security: ssl
+    smtp:
+      host: smtp.gmail.com
+      port: 465
+      security: ssl
+    auth:
+      username: user@gmail.com
+      password_env: GMAIL_APP_PASSWORD
+    delete:
+      mode: move
+      target_mailbox: auto
+      create_quarantine_if_missing: false
+
+safety:
+  send:
+    default: require_confirmation
+    allow_auto_send: false
+    allowlist_recipients: []
+    allowlist_domains: []
+    never_auto_send_when:
+      - has_attachment
+      - external_new_recipient
+      - contract_or_legal
+      - pricing_or_quote
+      - customer_complaint
+  cleanup:
+    vip_senders: []
+    low_value_senders: []
+
+audit:
+  path: ~/.email-agent/audit.jsonl

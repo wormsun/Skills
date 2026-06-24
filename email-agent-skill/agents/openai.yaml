@@ -1,0 +1,7 @@
+interface:
+  display_name: "Email Agent"
+  short_description: "IMAP/SMTP email automation with safe-delete"
+  default_prompt: "Use $email-agent to inspect my latest unread emails and turn anything actionable into Codex tasks."
+
+policy:
+  allow_implicit_invocation: true
